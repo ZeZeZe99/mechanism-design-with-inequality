@@ -1,0 +1,11 @@
+# Ignore Mac system files
+.DS_store
+
+# Ignore PyCharm files
+.idea
+
+# Ignore gurobi output files
+*.ilp
+
+# Ignore pycache
+__pycache__

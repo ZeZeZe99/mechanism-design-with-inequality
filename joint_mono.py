@@ -2,6 +2,8 @@
 Look at the discrete version of joint monotonicity function
 (v-v')(x(v)-x(v')) >= (g(v)-g(v'))(eta(v)-eta(v'))
 This program would randomly draw some x, g, eta values and check whether the joint monotonicity is sufficient for BIC
+
+Zejian Huang
 """
 
 import random
@@ -26,13 +28,19 @@ def draw():
     return xlist, glist, etalist
 
 
-# Check the monotonicity constraints
+# Check the IR and IC constraints
 def checkJointMono(xlist, glist, etalist):
+    # Check the IC constraints
     if xlist[1] - xlist[0] < (glist[1] - glist[0]) * (etalist[1] - etalist[0]):
         return False
     if xlist[2] - xlist[1] < (glist[2] - glist[1]) * (etalist[2] - etalist[1]):
         return False
     if 2 * (xlist[2] - xlist[0]) < (glist[2] - glist[0]) * (etalist[2] - etalist[0]):
+        return False
+    # Check the IR constraints
+    if xlist[0] - etalist[0] < 0:
+        return False
+    if xlist[0] + xlist[1] - etalist[0] - etalist[1] < 0:
         return False
     return True
 
@@ -60,6 +68,7 @@ if __name__ == '__main__':
         count += 1
         x, g, eta = draw()
         if checkJointMono(x, g, eta):
+            print(count)
             if checkGoal(x, g, eta):
                 print(count)
                 done = True
