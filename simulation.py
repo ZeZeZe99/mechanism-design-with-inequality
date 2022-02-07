@@ -9,10 +9,11 @@ import gurobipy as gp
 from prettytable import PrettyTable
 from population import Population
 from model import Model
+from dual import Dual
 
 # parameters
 LAMBDA = 50000  # social value for revenue
-n = 4  # number of types
+n = 4   # number of types
 q = 1  # ex ante constraint
 v_precision = 4
 
@@ -22,7 +23,7 @@ try:
     '''
     pop = Population(n)
     # pop.vsList = [0.2, 0.4, 0.6, 0.8]
-    pop.draw_s_uniform(0, 1, 2)
+    pop.dist_s_uniform(0, 1)
     pop.dist_mt_uniform(0, 1)
     pop.calculate_ratio()
 
@@ -35,22 +36,26 @@ try:
     # m.addConstr(gp.quicksum(p[i] for i in range(n)) == 0, "no payment")
     # m.addConstr(gp.quicksum(w[i] for i in range(n)) == 0, "no wait time")
 
+    # write model to file
+    m.write("model.lp")
+
     '''
     Solve LP
     '''
     # optimize model
     m.optimize()
-    m.display()
+    # m.display()
 
     # handle unbounded and infeasible problems
     if m.status == 5:
-        print("unbounded")
+        print("unbounded primal")
         exit(1)
     elif m.status == 3:
-        print("infeasible")
+        print("infeasible primal")
         m.computeIIS()
         m.write("model.ilp")
         exit(1)
+
 
     '''
     Print result
@@ -73,6 +78,7 @@ try:
                    p-w])
     print(t)
     print('q: %.2f, Obj: %g' % (q, m.objVal))
+    # exit(1)
 
     # constraints
     # find tight constraints
@@ -98,9 +104,18 @@ try:
         index += 1
     print()
 
+    """
+    Dual model
+    """
+    d = Dual(pop, q, LAMBDA).m
+    d.write("dual.lp")
+    d.optimize()
+    print(d.objVal)
+
+
 
 except gp.GurobiError as e:
-    print('Error code ' + e.errno + ': ' + e.message)
+    print('GurobiError: ' + e.message)
 
 except AttributeError:
     print('Encountered an attribute error')

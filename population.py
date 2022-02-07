@@ -44,6 +44,13 @@ class Population:
         self.vsList.sort()
 
     """
+    vs: generate discrete uniform distribution in (a, b)
+    """
+    def dist_s_uniform(self, a, b):
+        for i in range(self.num_type):
+            self.vsList.append((i + 1) * (b - a) / (self.num_type + 1) + a)
+
+    """
     vm & vt: generate discrete uniform distributions in (a, b)
     """
     def dist_mt_uniform(self, a, b):
