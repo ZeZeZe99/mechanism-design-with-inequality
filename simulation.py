@@ -114,7 +114,7 @@ try:
     d = Dual(pop, q, LAMBDA).m
     d.write("dual.lp")
     d.optimize()
-    print(d.objVal)
+    print("Dual obj: %g" % d.objVal)
 
 
 
