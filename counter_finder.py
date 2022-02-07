@@ -14,6 +14,7 @@ LAMBDA = 50000  # social value for revenue
 n = 9  # number of types
 q = 1  # ex ante constraint
 v_precision = 4
+num_loop = 100
 
 
 """
@@ -35,7 +36,7 @@ def mono_s_over_m():
 pop = Population(n)
 count = 0
 counter_ex = 0
-while count <= 10000:
+while count <= num_loop:
 
     try:
         '''
@@ -45,6 +46,7 @@ while count <= 10000:
         pop.draw_s_uniform(0, 1, 2)
         pop.dist_mt_uniform(0, 1)
         pop.calculate_ratio()
+        pop.calculate_regularity_s()
 
         '''
         Build model
@@ -73,7 +75,8 @@ while count <= 10000:
             count += 1
         else:
             counter_ex += 1
-            t = PrettyTable(["index", "prob", "vs", "vm", "vt", "x", "p", "w", "vs/vm", "vs/vt", "vt/vm", "eta"])
+            t = PrettyTable(["index", "prob", "vs", "vm", "vt", "x", "p", "w", "vs/vm", "vs/vt", "vt/vm",
+                             "vs_reg", "eta"])
             for i in range(n):
                 x = round(solution[i].x, v_precision)
                 p = round(solution[n + i].x, v_precision)
@@ -86,6 +89,7 @@ while count <= 10000:
                            round(pop.smList[i], v_precision),
                            round(pop.stList[i], v_precision),
                            round(pop.tmList[i], v_precision),
+                           round(pop.regularity[i], v_precision),
                            p - w])
             print(t)
             print('q: %.2f, Obj: %g' % (q, m.objVal))

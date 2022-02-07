@@ -13,7 +13,7 @@ from dual import Dual
 
 # parameters
 LAMBDA = 50000  # social value for revenue
-n = 4   # number of types
+n = 9   # number of types
 q = 1  # ex ante constraint
 v_precision = 4
 
@@ -23,9 +23,12 @@ try:
     '''
     pop = Population(n)
     # pop.vsList = [0.2, 0.4, 0.6, 0.8]
-    pop.dist_s_uniform(0, 1)
+    # pop.dist_s_uniform(3, 6)
+    pop.draw_s_uniform(0, 1, 2)
+
     pop.dist_mt_uniform(0, 1)
     pop.calculate_ratio()
+    pop.calculate_regularity_s()
 
     '''
     Build model
@@ -62,7 +65,7 @@ try:
     '''
     # solution
     solution = m.getVars()
-    t = PrettyTable(["index", "prob", "vs", "vm", "vt", "x", "p", "w", "vs/vm", "vs/vt", "vt/vm", "eta"])
+    t = PrettyTable(["index", "prob", "vs", "vm", "vt", "x", "p", "w", "vs/vm", "vs/vt", "vt/vm", "vs_reg", "eta"])
     for i in range(n):
         x = round(solution[i].x, v_precision)
         p = round(solution[n + i].x, v_precision)
@@ -75,6 +78,7 @@ try:
                    round(pop.smList[i], v_precision),
                    round(pop.stList[i], v_precision),
                    round(pop.tmList[i], v_precision),
+                   round(pop.regularity[i], v_precision),
                    p-w])
     print(t)
     print('q: %.2f, Obj: %g' % (q, m.objVal))

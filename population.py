@@ -22,6 +22,7 @@ class Population:
     smList = []
     tmList = []
     stList = []
+    regularity = []
 
     def __init__(self, num_type):
         self.num_type = num_type
@@ -88,6 +89,15 @@ class Population:
             self.stList.append(self.vsList[i] / self.vtList[i])
 
     """
+    Calculate vs values for regularity, i.e. vs - (1-F(vs)) / f(vs)
+    """
+    def calculate_regularity_s(self):
+        cdf = 0
+        for i in range(self.num_type):
+            cdf += self.pdf[i]
+            self.regularity.append(self.vsList[i] - (1 - cdf) / self.pdf[i])
+
+    """
     clear value lists
     """
     def clear_values(self):
@@ -98,3 +108,4 @@ class Population:
         self.smList.clear()
         self.tmList.clear()
         self.stList.clear()
+        self.regularity.clear()
