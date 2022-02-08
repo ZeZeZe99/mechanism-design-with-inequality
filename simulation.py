@@ -6,10 +6,10 @@ Zejian Huang
 """
 
 import gurobipy as gp
-from prettytable import PrettyTable
 from population import Population
 from model import Model
 from dual import Dual
+from printer import print_solution
 
 # parameters
 LAMBDA = 50000  # social value for revenue
@@ -23,8 +23,8 @@ try:
     '''
     pop = Population(n)
     # pop.vsList = [0.2, 0.4, 0.6, 0.8]
-    # pop.dist_s_uniform(3, 6)
-    pop.draw_s_uniform(0, 1, 2)
+    pop.dist_s_uniform(0, 1)
+    # pop.draw_s_uniform(0, 1, 2)
 
     pop.dist_mt_uniform(0, 1)
     pop.calculate_ratio()
@@ -59,54 +59,11 @@ try:
         m.write("model.ilp")
         exit(1)
 
-
     '''
     Print result
     '''
     # solution
-    solution = m.getVars()
-    t = PrettyTable(["index", "prob", "vs", "vm", "vt", "x", "p", "w", "vs/vm", "vs/vt", "vt/vm", "vs_reg", "eta"])
-    for i in range(n):
-        x = round(solution[i].x, v_precision)
-        p = round(solution[n + i].x, v_precision)
-        w = round(solution[2 * n + i].x, v_precision)
-        t.add_row([i+1, round(pop.pdf[i], v_precision),
-                   round(pop.vsList[i], v_precision),
-                   round(pop.vmList[i], v_precision),
-                   round(pop.vtList[i], v_precision),
-                   x, p, w,
-                   round(pop.smList[i], v_precision),
-                   round(pop.stList[i], v_precision),
-                   round(pop.tmList[i], v_precision),
-                   round(pop.regularity[i], v_precision),
-                   p-w])
-    print(t)
-    print('q: %.2f, Obj: %g' % (q, m.objVal))
-    # exit(1)
-
-    # constraints
-    # find tight constraints
-    slack = m.getAttr("slack")
-    print("IC constraints:")
-    index = 0
-    for i in range(n):
-        print("|", end=" ")
-        for j in range(n):
-            if i != j:
-                s = slack[index]
-                if s == 0:
-                    print("u(%d,%d)=u(%d,%d)" % (i+1, i+1, i+1, j+1), end=" | ")
-                else:
-                    print("_____________", end=" | ")
-                index += 1
-        print()
-    print("IR constraints:")
-    print("|", end=" ")
-    for i in range(n):
-        if slack[index] == 0:
-            print("u(%d)=0" % (i+1), end=" | ")
-        index += 1
-    print()
+    print_solution(m, pop, q, v_precision)
 
     """
     Dual model

@@ -89,13 +89,23 @@ class Population:
             self.stList.append(self.vsList[i] / self.vtList[i])
 
     """
-    Calculate vs values for regularity, i.e. vs - (1-F(vs)) / f(vs)
+    Calculate vs values for regularity, i.e. v_i - (1-F(v_i)) / f(v_i) * (v_{i+1} - v_i)
     """
     def calculate_regularity_s(self):
         cdf = 0
-        for i in range(self.num_type):
+        for i in range(self.num_type - 1):
             cdf += self.pdf[i]
-            self.regularity.append(self.vsList[i] - (1 - cdf) / self.pdf[i])
+            self.regularity.append(self.vsList[i] - (1 - cdf) / self.pdf[i] * (self.vsList[i+1] - self.vsList[i]))
+        self.regularity.append(self.vsList[-1])  # last type
+
+    """
+    Check if the distribution of vs satisfies monotone regularity constraint
+    """
+    def mono_regularity_s(self):
+        for i in range(self.num_type - 1):
+            if self.regularity[i] > self.regularity[i+1]:
+                return False
+        return True
 
     """
     clear value lists
