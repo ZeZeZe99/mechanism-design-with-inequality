@@ -46,3 +46,7 @@ class Model:
         # supply
         self.m.addConstr(gp.quicksum(x[i] * pop.pdf[i] for i in range(pop.num_type)) <= q, "supply")
 
+        # extra testing constraints
+        # self.m.addConstr(gp.quicksum(p[i] for i in range(n)) == 0, "no payment")
+        # self.m.addConstr(gp.quicksum(w[i] for i in range(n)) == 0, "no wait time")
+        # self.m.addConstr(x[0] >= 0.1, "test")

@@ -11,10 +11,10 @@ from printer import print_solution
 # parameters
 
 LAMBDA = 50000  # social value for revenue
-n = 9  # number of types
+n = 4  # number of types
 q = 1  # ex ante constraint
 v_precision = 4
-num_loop = 10000
+num_loop = 100000
 
 """
 Functions checking counterexamples

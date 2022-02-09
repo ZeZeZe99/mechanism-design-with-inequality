@@ -1,7 +1,7 @@
 from prettytable import PrettyTable
 
 """
-Print solution and constraints
+Print primal solution and constraints
 """
 def print_solution(model, pop, q, precision):
     solution = model.getVars()
@@ -48,3 +48,81 @@ def print_solution(model, pop, q, precision):
             print("u(%d)=0" % (i + 1), end=" | ")
         index += 1
     print()
+
+
+"""
+Print dual solution
+"""
+def print_dual_solution(model, pop, q, precision):
+    n = pop.num_type
+
+    # solutions
+    header = ["var"]
+    for i in range(n):
+        header.append(str(i+1))
+    t = PrettyTable(header)
+    # print IC
+    for i in range(n):
+        row = ["IC(" + str(i+1) + ", c)"]
+        for j in range(n):
+            if i == j:
+                row.append("")
+            else:
+                name = "ic[" + str(i) + "," + str(j) + "]"
+                row.append(round(model.getVarByName(name).x, precision))
+        t.add_row(row)
+    # print IR
+    row = ["IR"]
+    for i in range(n):
+        row.append(round(model.getVarByName("ir[" + str(i) + "]").x, precision))
+    t.add_row(row)
+    # print bound
+    row = ["Bound"]
+    for i in range(n):
+        row.append(round(model.getVarByName("bound[" + str(i) + "]").x, precision))
+    t.add_row(row)
+    # print supply
+    row = ["Supply", round(model.getVarByName("supply").x, precision)]
+    for i in range(n-1):
+        row.append("")
+    t.add_row(row)
+    print(t)
+
+    # tight / slack constraints
+    slack = model.getAttr("slack")
+    header2 = ["constraint"]
+    for i in range(n):
+        header2.append(str(i+1))
+    t2 = PrettyTable(header2)
+    index = 0
+    # x
+    row = ["x"]
+    for i in range(n):
+        if slack[index] == 0:
+            row.append("tight")
+            index += 1
+        else:
+            row.append("_____")
+            index += 1
+    t2.add_row(row)
+    # p
+    row = ["p"]
+    for i in range(n):
+        if slack[index] == 0:
+            row.append("tight")
+            index += 1
+        else:
+            row.append("_____")
+            index += 1
+    t2.add_row(row)
+    # w
+    row = ["w"]
+    for i in range(n):
+        if slack[index] == 0:
+            row.append("tight")
+            index += 1
+        else:
+            row.append("_____")
+            index += 1
+    t2.add_row(row)
+    print(t2)

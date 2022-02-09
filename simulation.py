@@ -9,11 +9,11 @@ import gurobipy as gp
 from population import Population
 from model import Model
 from dual import Dual
-from printer import print_solution
+from printer import print_solution, print_dual_solution
 
 # parameters
 LAMBDA = 50000  # social value for revenue
-n = 9   # number of types
+n = 4   # number of types
 q = 1  # ex ante constraint
 v_precision = 4
 
@@ -22,8 +22,8 @@ try:
     Generate population
     '''
     pop = Population(n)
-    # pop.vsList = [0.2, 0.4, 0.6, 0.8]
-    pop.dist_s_uniform(0, 1)
+    # pop.vsList = [.09, .33, .46, .56, .61, .65, .7, .73, .78]
+    pop.dist_s_uniform(.1, .6)
     # pop.draw_s_uniform(0, 1, 2)
 
     pop.dist_mt_uniform(0, 1)
@@ -35,9 +35,7 @@ try:
     '''
     m = Model(pop, q, LAMBDA).m
 
-    # extra testing constraints
-    # m.addConstr(gp.quicksum(p[i] for i in range(n)) == 0, "no payment")
-    # m.addConstr(gp.quicksum(w[i] for i in range(n)) == 0, "no wait time")
+
 
     # write model to file
     m.write("model.lp")
@@ -71,7 +69,9 @@ try:
     d = Dual(pop, q, LAMBDA).m
     d.write("dual.lp")
     d.optimize()
+    print()
     print("Dual obj: %g" % d.objVal)
+    print_dual_solution(d, pop, q, v_precision)
 
 
 
