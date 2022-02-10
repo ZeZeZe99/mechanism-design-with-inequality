@@ -58,7 +58,6 @@ class Population:
         for i in range(self.num_type):
             self.vmList.append((i + 1) * (b - a) / (self.num_type + 1) + a)
             self.vtList.append((self.num_type - i) * (b - a) / (self.num_type + 1) + a)
-            self.pdf.append(1 / self.num_type)
 
     # TODO: might need to revise this function
     """
@@ -78,6 +77,13 @@ class Population:
             pdf_sum += d
         for i in range(self.num_type):
             self.pdf[i] = self.pdf[i] / pdf_sum
+
+    """
+    pdf: generate a uniform type distribution
+    """
+    def pdf_uniform(self):
+        for i in range(self.num_type):
+            self.pdf.append(1 / self.num_type)
 
     """
     Calculate list of vs/vm, vt/vm, and vs/vt

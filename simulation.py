@@ -27,6 +27,7 @@ try:
     # pop.draw_s_uniform(0, 1, 2)
 
     pop.dist_mt_uniform(0, 1)
+    pop.pdf_uniform()
     pop.calculate_ratio()
     pop.calculate_regularity_s()
 
@@ -35,10 +36,8 @@ try:
     '''
     m = Model(pop, q, LAMBDA).m
 
-
-
     # write model to file
-    m.write("model.lp")
+    m.write("lp/model.lp")
 
     '''
     Solve LP
@@ -54,7 +53,7 @@ try:
     elif m.status == 3:
         print("infeasible primal")
         m.computeIIS()
-        m.write("model.ilp")
+        m.write("lp/model.ilp")
         exit(1)
 
     '''
@@ -67,13 +66,11 @@ try:
     Dual model
     """
     d = Dual(pop, q, LAMBDA).m
-    d.write("dual.lp")
+    d.write("lp/dual.lp")
     d.optimize()
     print()
     print("Dual obj: %g" % d.objVal)
     print_dual_solution(d, pop, q, v_precision)
-
-
 
 except gp.GurobiError as e:
     print('GurobiError: ' + e.message)

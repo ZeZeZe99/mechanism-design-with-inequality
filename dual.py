@@ -24,20 +24,20 @@ class Dual:
         self.m.Params.DualReductions = 0
 
         # variables
-        # ic = self.m.addVars(pop.num_type * (pop.num_type - 1), vtype=GRB.CONTINUOUS, name="ic", lb=0)
+        # ic = self.m.addVars(pop.num_type * (pop.num_type - 1), vtype=GRB.CONTINUOUS, name="ic", lb=0)  # ic[i]
+
         ic_list = []
         for i in range(pop.num_type):
             for j in range(pop.num_type):
                 if i != j:
                     ic_list.append((i, j))
-
         ic = self.m.addVars(tuplelist(ic_list), vtype=GRB.CONTINUOUS, name="ic", lb=0)  # ic[i, j]
         ir = self.m.addVars(pop.num_type, vtype=GRB.CONTINUOUS, name="ir", lb=0)
         b = self.m.addVars(pop.num_type, vtype=GRB.CONTINUOUS, name="bound", lb=0)
         sup = self.m.addVar(vtype=GRB.CONTINUOUS, name="supply", lb=0)
 
         # objective
-        self.m.setObjective(sup + gp.quicksum(b), GRB.MINIMIZE)
+        self.m.setObjective(q * sup + gp.quicksum(b), GRB.MINIMIZE)
 
         # constraints using ic[i, j]
         # x
