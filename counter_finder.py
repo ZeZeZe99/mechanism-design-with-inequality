@@ -6,15 +6,16 @@ Zejian Huang
 import gurobipy as gp
 from population import Population
 from model import Model
-from printer import print_solution
+from dual import Dual
+from printer import print_solution, print_dual_solution
 
 # parameters
 
 LAMBDA = 50000  # social value for revenue
-n = 4  # number of types
+n = 9  # number of types
 q = 1  # ex ante constraint
 v_precision = 4
-num_loop = 100000
+num_loop = 10000
 
 """
 Functions checking counterexamples
@@ -31,6 +32,15 @@ def mono_s_over_m():
                 return False
     return True
 
+'''
+Check whether the dual variable IC[a,b] is 0
+'''
+def dual_zero_IC(a, b):
+    name = "ic[" + str(a-1) + "," + str(b-1) + "]"
+    if d.getVarByName(name).x == 0:
+        return True
+    else:
+        return False
 
 pop = Population(n)
 count = 0
@@ -42,8 +52,11 @@ while count <= num_loop:
         Generate population
         '''
         pop.clear_values()
-        pop.draw_s_uniform(0, 1, 2)
-        pop.dist_mt_uniform(0, 1)
+        pop.vsList = pop.dist_uniform(1, 5)
+        pop.vmList = pop.dist_uniform(2, 3)
+        pop.vtList = pop.dist_uniform(4, 2)
+        pop.perturbation(-1e-3, 1e-3, precision=v_precision)
+        pop.pdf_uniform()
         pop.calculate_ratio()
         pop.calculate_regularity_s()
 
@@ -51,11 +64,11 @@ while count <= num_loop:
         Build model
         '''
         m = Model(pop, q, LAMBDA).m
+        d = Dual(pop, q, LAMBDA).m
 
         # optimize model
         m.optimize()
-
-        m.display()
+        d.optimize()
 
         # handle unbounded or infeasible
         if m.status == 5:
@@ -73,10 +86,13 @@ while count <= num_loop:
         count += 1
         if count % 1000 == 0:
             print(count)
-        if not mono_s_over_m() and pop.mono_regularity_s():
+        # if not mono_s_over_m() and pop.mono_regularity_s():
         # if not mono_s_over_m():
+        if not dual_zero_IC(1, 4) or not dual_zero_IC(2, 5):
             counter_ex += 1
-            print_solution(m, pop, q, v_precision)
+            # print_solution(m, pop, q, v_precision)
+            print_dual_solution(d, pop, q, v_precision)
+            exit(1)
 
     except gp.GurobiError as e:
         print('Error code ' + e.errno + ': ' + e.message)

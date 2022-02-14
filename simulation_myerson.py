@@ -11,7 +11,7 @@ from myerson import Myerson
 from printer import myerson_solution, myerson_dual_solution
 
 # parameters
-n = 2   # number of types
+n = 10   # number of types
 q = 1  # ex ante constraint
 v_precision = 4
 
@@ -20,9 +20,9 @@ try:
     Generate population
     '''
     pop = Population(n)
-    # pop.vsList = [.09, .33, .46, .56, .61, .65, .7, .73, .78]
     pop.dist_s_uniform(0, 1)
     # pop.draw_s_uniform(0, 1, 2)
+
     pop.pdf_uniform()
 
     pop.calculate_regularity_s()

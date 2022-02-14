@@ -68,7 +68,7 @@ class Dual:
                 for i in range(pop.num_type)
             ), "p"
         )
-        # t
+        # w
         self.m.addConstrs(
             (
                 # IC constraints
@@ -78,8 +78,9 @@ class Dual:
                 + pop.vtList[i] * ir[i]
                 >= -pop.vtList[i] * pop.pdf[i]
                 for i in range(pop.num_type)
-            ), "t"
+            ), "w"
         )
+        self.m.addConstr(sup == 0, "test")
 
         # constraints using ic[i]
         # # x

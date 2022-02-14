@@ -13,7 +13,7 @@ from printer import print_solution, print_dual_solution
 
 # parameters
 LAMBDA = 50000  # social value for revenue
-n = 4   # number of types
+n = 9  # number of types
 q = 1  # ex ante constraint
 v_precision = 4
 
@@ -22,12 +22,23 @@ try:
     Generate population
     '''
     pop = Population(n)
-    # pop.vsList = [.09, .33, .46, .56, .61, .65, .7, .73, .78]
-    pop.dist_s_uniform(.1, .6)
-    # pop.draw_s_uniform(0, 1, 2)
+    # vs
+    pop.vsList = pop.dist_uniform(2, 8)
 
-    pop.dist_mt_uniform(0, 1)
+    # vm
+    pop.vmList = pop.dist_uniform(2, 3)
+
+    # vt
+    pop.vtList = pop.dist_uniform(5, 2)
+    # for i in range(pop.num_type):
+    #     pop.vtList.append(2 - pop.vmList[i])
+
+    # add perturbation to values
+    pop.perturbation(-1e-3, 1e-3, precision=v_precision)
+
+    # pdf for each type
     pop.pdf_uniform()
+
     pop.calculate_ratio()
     pop.calculate_regularity_s()
 
@@ -70,7 +81,7 @@ try:
     d.optimize()
     print()
     print("Dual obj: %g" % d.objVal)
-    print_dual_solution(d, pop, q, v_precision)
+    # print_dual_solution(d, pop, q, v_precision)
 
 except gp.GurobiError as e:
     print('GurobiError: ' + e.message)

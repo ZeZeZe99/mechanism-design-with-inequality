@@ -28,36 +28,32 @@ class Population:
         self.num_type = num_type
 
     """
-    vs: draw random values from uniform (0, 1) and sort (ascending)
+    draw random values from uniform (0, 1) and sort (ascending)
     """
-    def draw_s_uniform_0_1(self, precision):
+    def draw_uniform_0_1(self, precision=4):
         for i in range(self.num_type):
             self.vsList.append(round(random.random(), precision))
         self.vsList.sort()
 
     """
-    vs: draw random values from uniform (a, b) and sort (ascending)
+    draw random values from uniform (a, b) and sort (ascending)
     :param precision: decimal precision
     """
-    def draw_s_uniform(self, a, b, precision):
+    def draw_uniform(self, a, b, precision=2):
+        values = []
         for i in range(self.num_type):
-            self.vsList.append(round(random.uniform(a, b), precision))
-        self.vsList.sort()
+            values.append(round(random.uniform(a, b), precision))
+        values.sort()
+        return values
 
     """
-    vs: generate discrete uniform distribution in (a, b)
+    generate discrete uniform distribution in (a, b)
     """
-    def dist_s_uniform(self, a, b):
+    def dist_uniform(self, a, b):
+        values = []
         for i in range(self.num_type):
-            self.vsList.append((i + 1) * (b - a) / (self.num_type + 1) + a)
-
-    """
-    vm & vt: generate discrete uniform distributions in (a, b)
-    """
-    def dist_mt_uniform(self, a, b):
-        for i in range(self.num_type):
-            self.vmList.append((i + 1) * (b - a) / (self.num_type + 1) + a)
-            self.vtList.append((self.num_type - i) * (b - a) / (self.num_type + 1) + a)
+            values.append((i + 1) * (b - a) / (self.num_type + 1) + a)
+        return values
 
     # TODO: might need to revise this function
     """
@@ -77,6 +73,20 @@ class Population:
             pdf_sum += d
         for i in range(self.num_type):
             self.pdf[i] = self.pdf[i] / pdf_sum
+
+    """
+    Add a perturbation to vs or vm or vt, draw uniformly from (a, b)
+    """
+    def perturbation(self, a, b, vs=True, vm=True, vt=True, precision=4):
+        if vs:
+            for i in range(len(self.vsList)):
+                self.vsList[i] += round(random.uniform(a, b), precision)
+        if vm:
+            for i in range(len(self.vmList)):
+                self.vmList[i] += round(random.uniform(a, b), precision)
+        if vt:
+            for i in range(len(self.vtList)):
+                self.vtList[i] += round(random.uniform(a, b), precision)
 
     """
     pdf: generate a uniform type distribution
