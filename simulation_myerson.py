@@ -8,7 +8,7 @@ Zejian Huang
 import gurobipy as gp
 from population import Population
 from myerson import Myerson
-from printer import myerson_solution, myerson_dual_solution
+from printer import print_solution, print_dual_solution
 
 # parameters
 n = 10   # number of types
@@ -20,7 +20,7 @@ try:
     Generate population
     '''
     pop = Population(n)
-    pop.dist_s_uniform(0, 1)
+    pop.vsList = pop.dist_uniform(0, 1)
     # pop.draw_s_uniform(0, 1, 2)
 
     pop.pdf_uniform()
@@ -58,7 +58,7 @@ try:
     Print result
     '''
     # solution
-    myerson_solution(primal, pop, q, v_precision)
+    print_solution(primal, pop, q, v_precision, myerson=True)
 
     """
     Solve dual LP
@@ -80,7 +80,7 @@ try:
     Print result
     '''
     # solution
-    myerson_dual_solution(dual, pop, q, v_precision)
+    print_dual_solution(dual, pop, q, v_precision, myerson=True)
 
 except gp.GurobiError as e:
     print('GurobiError: ' + e.message)

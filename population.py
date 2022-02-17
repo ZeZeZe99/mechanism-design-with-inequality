@@ -7,7 +7,7 @@ Zejian Huang
 
 import random
 
-from scipy.stats import beta
+from scipy.stats import beta, geom, expon
 
 
 class Population:
@@ -23,6 +23,9 @@ class Population:
     tmList = []
     stList = []
     regularity = []
+    vs_perturbation = []
+    vm_perturbation = []
+    vt_perturbation = []
 
     def __init__(self, num_type):
         self.num_type = num_type
@@ -47,7 +50,7 @@ class Population:
         return values
 
     """
-    generate discrete uniform distribution in (a, b)
+    Generate values uniformly distributed in (a, b)
     """
     def dist_uniform(self, a, b):
         values = []
@@ -55,24 +58,29 @@ class Population:
             values.append((i + 1) * (b - a) / (self.num_type + 1) + a)
         return values
 
-    # TODO: might need to revise this function
     """
-    vm: beta distribution
+    Generate values in (a, b) according to exponential distribution
+    :param scale: 1 / lambda in pdf lambda * e ^ (- lambda * x)
     """
-    def generate_mt_beta(self, a, b):
+    def dist_exponential(self, a, b, scale=1):
+        values = []
+        cdf = 0
         for i in range(self.num_type):
-            self.vmList.append(beta.rvs(a, b))
-        self.vmList.sort()
-        for i in range(self.num_type):
-            self.vtList.append(1 - self.vmList[i])
+            cdf += 1 / (self.num_type + 1)
+            values.append(expon.ppf(cdf, scale=scale))
+        return values
 
-        pdf_sum = 0
+    """
+    
+    """
+    def dist_geometric(self, a, b, p):
+        values = []
+        cdf = 0
         for i in range(self.num_type):
-            d = beta.pdf(self.vmList[i], a, b)
-            self.pdf.append(d)
-            pdf_sum += d
-        for i in range(self.num_type):
-            self.pdf[i] = self.pdf[i] / pdf_sum
+            cdf += 1 / (self.num_type + 1)
+            values.append(geom.ppf(cdf, p))
+        print(values)
+        return values
 
     """
     Add a perturbation to vs or vm or vt, draw uniformly from (a, b)
@@ -80,13 +88,19 @@ class Population:
     def perturbation(self, a, b, vs=True, vm=True, vt=True, precision=4):
         if vs:
             for i in range(len(self.vsList)):
-                self.vsList[i] += round(random.uniform(a, b), precision)
+                off = round(random.uniform(a, b), precision)
+                self.vsList[i] += off
+                self.vs_perturbation.append(off)
         if vm:
             for i in range(len(self.vmList)):
-                self.vmList[i] += round(random.uniform(a, b), precision)
+                off = round(random.uniform(a, b), precision)
+                self.vmList[i] += off
+                self.vm_perturbation.append(off)
         if vt:
             for i in range(len(self.vtList)):
-                self.vtList[i] += round(random.uniform(a, b), precision)
+                off = round(random.uniform(a, b), precision)
+                self.vtList[i] += off
+                self.vt_perturbation.append(off)
 
     """
     pdf: generate a uniform type distribution
@@ -94,6 +108,21 @@ class Population:
     def pdf_uniform(self):
         for i in range(self.num_type):
             self.pdf.append(1 / self.num_type)
+
+    """
+    pdf: generate a geometric type distribution
+    """
+    def pdf_geometric(self, p):
+        pmf = []
+        total = 0
+        for i in range(self.num_type):
+            temp = geom.pmf(i+1, p)
+            total += temp
+            pmf.append(temp)
+        # for i in range(self.num_type):
+        #     pmf[i] /= total
+        self.pdf = pmf
+        print(sum(pmf))
 
     """
     Calculate list of vs/vm, vt/vm, and vs/vt
@@ -135,3 +164,6 @@ class Population:
         self.tmList.clear()
         self.stList.clear()
         self.regularity.clear()
+        self.vs_perturbation.clear()
+        self.vm_perturbation.clear()
+        self.vt_perturbation.clear()

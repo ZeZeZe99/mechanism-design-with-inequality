@@ -6,10 +6,12 @@ Zejian Huang
 """
 
 import gurobipy as gp
+
+
 from population import Population
 from model import Model
 from dual import Dual
-from printer import print_solution, print_dual_solution
+from printer import print_solution, print_dual_solution, plot_values
 
 # parameters
 LAMBDA = 50000  # social value for revenue
@@ -23,24 +25,36 @@ try:
     '''
     pop = Population(n)
     # vs
-    pop.vsList = pop.dist_uniform(2, 8)
+    pop.vsList = pop.dist_uniform(3, 4)
+    # pop.vsList = pop.dist_exponential(0, 1, scale=1/1)  # scale = 1 / lambda
+    # pop.vsList = pop.dist_geometric(0, 1, 0.5)
+    # pop.vsList = [.14, .19, .51, .59, .61, .69, .7, .75, .78]
 
     # vm
-    pop.vmList = pop.dist_uniform(2, 3)
+    pop.vmList = pop.dist_uniform(0, 1)
 
     # vt
-    pop.vtList = pop.dist_uniform(5, 2)
+    pop.vtList = pop.dist_uniform(1, 0)
     # for i in range(pop.num_type):
     #     pop.vtList.append(2 - pop.vmList[i])
 
     # add perturbation to values
-    pop.perturbation(-1e-3, 1e-3, precision=v_precision)
+    # pop.perturbation(-1e-3, 1e-3, precision=v_precision, vs=True, vm=False, vt=False)
+    for i in range(0, 9):
+        pop.vsList[i] += - 1 * i ** 2 / 1000
+        pop.vs_perturbation.append(-1 * i ** 2 / 1000)
 
     # pdf for each type
     pop.pdf_uniform()
+    # pop.pdf_geometric(.5)
 
     pop.calculate_ratio()
     pop.calculate_regularity_s()
+
+    '''
+    Draw value graphs
+    '''
+    plot_values(pop, vs=True, vm=False, vt=False, augmentation=1)
 
     '''
     Build model
@@ -79,9 +93,8 @@ try:
     d = Dual(pop, q, LAMBDA).m
     d.write("lp/dual.lp")
     d.optimize()
-    print()
     print("Dual obj: %g" % d.objVal)
-    # print_dual_solution(d, pop, q, v_precision)
+    print_dual_solution(d, pop, q, v_precision)
 
 except gp.GurobiError as e:
     print('GurobiError: ' + e.message)
