@@ -52,9 +52,9 @@ while count <= num_loop:
         Generate population
         '''
         pop.clear_values()
-        pop.vsList = pop.dist_uniform(1, 5)
-        pop.vmList = pop.dist_uniform(2, 3)
-        pop.vtList = pop.dist_uniform(4, 2)
+        pop.vsList = pop.value_uniform(1, 5)
+        pop.vmList = pop.value_uniform(2, 3)
+        pop.vtList = pop.value_uniform(4, 2)
         pop.perturbation(-1e-3, 1e-3, precision=v_precision)
         pop.type_uniform()
         pop.calculate_ratio()

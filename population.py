@@ -48,7 +48,7 @@ class Population:
     """
     Generate values uniformly distributed in (a, b)
     """
-    def dist_uniform(self, a, b):
+    def value_uniform(self, a, b):
         values = []
         for i in range(self.num_type):
             values.append((i + 1) * (b - a) / (self.num_type + 1) + a)
@@ -58,7 +58,7 @@ class Population:
     Generate values according to (discrete) exponential distribution
     :param scale: 1 / lambda in pdf lambda * e ^ (- lambda * x)
     """
-    def dist_exponential(self, scale=1):
+    def value_exponential(self, scale=1):
         values = []
         cdf = 0
         for i in range(self.num_type):
@@ -70,7 +70,7 @@ class Population:
     Generate values according to (discrete) mixture Kumaraswamy distribution
     The CDF of the mixture distribution is q*(1-(1-x)^a)^b + (1-q)*(1-(1-x)^c)^d
     """
-    def dist_kumaraswamy(self, a, b, c, d, q, precision=4):
+    def value_kumaraswamy(self, a, b, c, d, q, precision=4):
         values = []
         cdf = 0
         for i in range(self.num_type):
@@ -132,10 +132,6 @@ class Population:
             cdf += pmf
             self.pdfList.append(pmf)
             self.cdfList.append(cdf)
-
-
-
-
 
     """
     Calculate list of vs/vm, vt/vm, and vs/vt

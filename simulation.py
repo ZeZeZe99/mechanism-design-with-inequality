@@ -26,17 +26,17 @@ try:
     pop = Population(n)
 
     '''vm'''
-    pop.vmList = pop.dist_uniform(1, 1)
+    pop.vmList = pop.value_uniform(1, 1)
 
     '''vs'''
-    pop.vsList = pop.dist_uniform(0, 1)
-    # pop.vsList = pop.dist_kumaraswamy(1.75, 10, 8, 5, 0.75)  # a, b, c, d, q
-    # pop.vsList = pop.dist_exponential(scale=1/1)  # scale = 1 / lambda
+    pop.vsList = pop.value_uniform(0, 1)
+    # pop.vsList = pop.value_kumaraswamy(1.75, 10, 8, 5, 0.75)  # a, b, c, d, q
+    # pop.vsList = pop.value_exponential(scale=1/1)  # scale = 1 / lambda
     # for i in range(pop.num_type):
     #     pop.vsList.append(math.log(pop.vmList[i]))
 
     '''vt'''
-    # pop.vtList = pop.dist_uniform(1, 0)
+    # pop.vtList = pop.value_uniform(1, 0)
     for i in range(pop.num_type):
         pop.vtList.append(pop.vsList[i]**2)
 

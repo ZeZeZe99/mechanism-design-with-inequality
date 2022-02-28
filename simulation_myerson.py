@@ -20,7 +20,7 @@ try:
     Generate population
     '''
     pop = Population(n)
-    pop.vsList = pop.dist_uniform(0, 1)
+    pop.vsList = pop.value_uniform(0, 1)
     # pop.draw_s_uniform(0, 1, 2)
 
     pop.type_uniform()
