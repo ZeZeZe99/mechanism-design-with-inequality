@@ -49,10 +49,10 @@ class Dual:
                 # IR constraints
                 - pop.vsList[i] * ir[i]
                 # supply constraint
-                + pop.pdf[i] * sup
+                + pop.pdfList[i] * sup
                 # bound
                 + b[i]
-                >= pop.vsList[i] * pop.pdf[i]
+                >= pop.vsList[i] * pop.pdfList[i]
                 for i in range(pop.num_type)
             ), "x"
         )
@@ -64,7 +64,7 @@ class Dual:
                 + gp.quicksum(-pop.vmList[j] * ic[j, i] for j in range(pop.num_type) if i != j)  # Uj >= Ui
                 # IR constraints
                 + pop.vmList[i] * ir[i]
-                >= (LAMBDA - pop.vmList[i]) * pop.pdf[i]
+                >= (LAMBDA - pop.vmList[i]) * pop.pdfList[i]
                 for i in range(pop.num_type)
             ), "p"
         )
@@ -76,11 +76,11 @@ class Dual:
                 + gp.quicksum(-pop.vtList[j] * ic[j, i] for j in range(pop.num_type) if i != j)  # Uj >= Ui
                 # IR constraints
                 + pop.vtList[i] * ir[i]
-                >= -pop.vtList[i] * pop.pdf[i]
+                >= -pop.vtList[i] * pop.pdfList[i]
                 for i in range(pop.num_type)
             ), "w"
         )
-        self.m.addConstr(sup == 0, "test")
+        # self.m.addConstr(b[4] = 0, "test")
 
         # constraints using ic[i]
         # # x
@@ -95,10 +95,10 @@ class Dual:
         #         # IR constraints
         #         - pop.vsList[i] * ir[i]
         #         # supply constraint
-        #         + pop.pdf[i] * sup[0]
+        #         + pop.pdfList[i] * sup[0]
         #         # bound
         #         + b[i]
-        #         >= pop.vsList[i] * pop.pdf[i]
+        #         >= pop.vsList[i] * pop.pdfList[i]
         #         for i in range(pop.num_type)
         #     ), "x"
         # )
@@ -113,7 +113,7 @@ class Dual:
         #                       for j in range(i + 1, pop.num_type))  # Uj >= Ui when i < j
         #         # IR constraints
         #         + pop.vmList[i] * ir[i]
-        #         >= (LAMBDA - pop.vmList[i]) * pop.pdf[i]
+        #         >= (LAMBDA - pop.vmList[i]) * pop.pdfList[i]
         #         for i in range(pop.num_type)
         #     ), "p"
         # )
@@ -128,7 +128,7 @@ class Dual:
         #                       for j in range(i + 1, pop.num_type))  # Uj >= Ui when i < j
         #         # IR constraints
         #         + pop.vtList[i] * ir[i]
-        #         >= -pop.vtList[i] * pop.pdf[i]
+        #         >= -pop.vtList[i] * pop.pdfList[i]
         #         for i in range(pop.num_type)
         #     ), "t"
         # )

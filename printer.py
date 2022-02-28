@@ -12,26 +12,26 @@ def print_solution(model, pop, q, precision, myerson=False):
 
     # Columns
     if myerson:
-        t = PrettyTable(["index", "prob", "vs", "x", "p", "vs_reg"])
+        t = PrettyTable(["index", "prob", "vs", "x", "p", "vs_vir"])
     else:
         t = PrettyTable(["index", "prob", "vs", "vm", "vt", "x", "p", "w", "vs/vm", "vs/vt", "vt/vm",
-                        "vs_reg", "eta"])
+                        "vs_vir"])
 
     # Solutions
     if myerson:
         for i in range(n):
             x = round(solution[i].x, precision)
             p = round(solution[n + i].x, precision)
-            t.add_row([i + 1, round(pop.pdf[i], precision),
+            t.add_row([i + 1, round(pop.pdfList[i], precision),
                        round(pop.vsList[i], precision),
                        x, p,
-                       round(pop.regularity[i], precision)])
+                       round(pop.vir_vsList[i], precision)])
     else:
         for i in range(n):
             x = round(solution[i].x, precision)
             p = round(solution[n + i].x, precision)
             w = round(solution[2 * n + i].x, precision)
-            t.add_row([i + 1, round(pop.pdf[i], precision),
+            t.add_row([i + 1, round(pop.pdfList[i], precision),
                        round(pop.vsList[i], precision),
                        round(pop.vmList[i], precision),
                        round(pop.vtList[i], precision),
@@ -39,8 +39,7 @@ def print_solution(model, pop, q, precision, myerson=False):
                        round(pop.smList[i], precision),
                        round(pop.stList[i], precision),
                        round(pop.tmList[i], precision),
-                       round(pop.regularity[i], precision),
-                       p - w])
+                       round(pop.vir_vsList[i], precision)])
     print(t)
 
     # Constraints
@@ -159,29 +158,12 @@ def print_dual_solution(model, pop, q, precision, myerson=False):
 """
 Draw the line graphs for values
 """
-def plot_values(pop, vs=True, vm=False, vt=False, augmentation=1):
+def plot_values(pop, vs=True, vm=False, vt=False):
     if vs:
-        temp = []
-        if len(pop.vs_perturbation) == 0:
-            temp = pop.vsList
-        else:
-            for i in range(pop.num_type):
-                temp.append(pop.vsList[i] + augmentation * pop.vs_perturbation[i])
-        plt.plot(temp)
+        # plt.plot(pop.vsList, pop.cdfList)  # CDF
+        plt.plot(pop.cdfList, pop.vsList)  # vs
     if vm:
-        temp = []
-        if len(pop.vm_perturbation) == 0:
-            temp = pop.vmList
-        else:
-            for i in range(pop.num_type):
-                temp.append(pop.vmList[i] + augmentation * pop.vm_perturbation[i])
-        plt.plot(temp)
+        plt.plot(pop.vmList)
     if vt:
-        temp = []
-        if len(pop.vt_perturbation) == 0:
-            temp = pop.vtList
-        else:
-            for i in range(pop.num_type):
-                temp.append(pop.vtList[i] + augmentation * pop.vt_perturbation[i])
-        plt.plot(temp)
+        plt.plot(pop.vtList)
     plt.show()

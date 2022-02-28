@@ -23,9 +23,9 @@ try:
     pop.vsList = pop.dist_uniform(0, 1)
     # pop.draw_s_uniform(0, 1, 2)
 
-    pop.pdf_uniform()
+    pop.type_uniform()
 
-    pop.calculate_regularity_s()
+    pop.calculate_virtual_s()
 
     '''
     Build LP model (primal and dual)

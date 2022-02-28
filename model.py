@@ -31,7 +31,7 @@ class Model:
         # objective
         self.m.setObjective(
             gp.quicksum(
-                (pop.vsList[i] * x[i] - pop.vmList[i] * p[i] - pop.vtList[i] * w[i] + LAMBDA * p[i]) * pop.pdf[i]
+                (pop.vsList[i] * x[i] - pop.vmList[i] * p[i] - pop.vtList[i] * w[i] + LAMBDA * p[i]) * pop.pdfList[i]
                 for i in range(pop.num_type)),
             GRB.MAXIMIZE)
 
@@ -44,10 +44,10 @@ class Model:
         self.m.addConstrs((pop.vsList[i] * x[i] - pop.vmList[i] * p[i] - pop.vtList[i] * w[i] >= 0
                            for i in range(pop.num_type)), "IR")
         # supply
-        self.m.addConstr(gp.quicksum(x[i] * pop.pdf[i] for i in range(pop.num_type)) <= q, "supply")
+        self.m.addConstr(gp.quicksum(x[i] * pop.pdfList[i] for i in range(pop.num_type)) <= q, "supply")
 
         # extra testing constraints
-        # self.m.addConstr(gp.quicksum(p[i] for i in range(n)) == 0, "no payment")
-        # self.m.addConstr(gp.quicksum(w[i] for i in range(n)) == 0, "no wait time")
-        # self.m.addConstr(x[1] == 1, "test")
+        # self.m.addConstr(gp.quicksum(p[i] for i in range(pop.num_type)) == 0, "no payment")
+        # self.m.addConstr(gp.quicksum(w[i] for i in range(pop.num_type)) == 0, "no wait time")
         # self.m.addConstrs((x[i] == 1 for i in range(pop.num_type)), "full allocation")
+        # self.m.addConstr(w[25] == 0, "test")

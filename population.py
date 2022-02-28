@@ -8,6 +8,7 @@ Zejian Huang
 import random
 
 from scipy.stats import beta, geom, expon
+from scipy.optimize import fsolve
 
 
 class Population:
@@ -18,25 +19,20 @@ class Population:
     vsList = []
     vmList = []
     vtList = []
-    pdf = []
+    # distribution
+    pdfList = []
+    cdfList = []
+    # ratio of values
     smList = []
     tmList = []
     stList = []
-    regularity = []
-    vs_perturbation = []
-    vm_perturbation = []
-    vt_perturbation = []
+    # virtual values
+    vir_vsList = []
+    # virtual ratio of values
+    vir_smList = []
 
     def __init__(self, num_type):
         self.num_type = num_type
-
-    """
-    draw random values from uniform (0, 1) and sort (ascending)
-    """
-    def draw_uniform_0_1(self, precision=4):
-        for i in range(self.num_type):
-            self.vsList.append(round(random.random(), precision))
-        self.vsList.sort()
 
     """
     draw random values from uniform (a, b) and sort (ascending)
@@ -59,10 +55,10 @@ class Population:
         return values
 
     """
-    Generate values in (a, b) according to exponential distribution
+    Generate values according to (discrete) exponential distribution
     :param scale: 1 / lambda in pdf lambda * e ^ (- lambda * x)
     """
-    def dist_exponential(self, a, b, scale=1):
+    def dist_exponential(self, scale=1):
         values = []
         cdf = 0
         for i in range(self.num_type):
@@ -71,15 +67,20 @@ class Population:
         return values
 
     """
-    
+    Generate values according to (discrete) mixture Kumaraswamy distribution
+    The CDF of the mixture distribution is q*(1-(1-x)^a)^b + (1-q)*(1-(1-x)^c)^d
     """
-    def dist_geometric(self, a, b, p):
+    def dist_kumaraswamy(self, a, b, c, d, q, precision=4):
         values = []
         cdf = 0
         for i in range(self.num_type):
             cdf += 1 / (self.num_type + 1)
-            values.append(geom.ppf(cdf, p))
-        print(values)
+
+            # cdf = q * F(x) + (1-q) * G(x)
+            def func(x):
+                return q * (1 - (1-x**a)**b) + (1-q) * (1 - (1-x**c)**d) - cdf
+            v = fsolve(func, 1e-4)[0]
+            values.append(round(v.item(), precision))
         return values
 
     """
@@ -90,39 +91,51 @@ class Population:
             for i in range(len(self.vsList)):
                 off = round(random.uniform(a, b), precision)
                 self.vsList[i] += off
-                self.vs_perturbation.append(off)
         if vm:
             for i in range(len(self.vmList)):
                 off = round(random.uniform(a, b), precision)
                 self.vmList[i] += off
-                self.vm_perturbation.append(off)
         if vt:
             for i in range(len(self.vtList)):
                 off = round(random.uniform(a, b), precision)
                 self.vtList[i] += off
-                self.vt_perturbation.append(off)
 
     """
-    pdf: generate a uniform type distribution
+    Generate a uniform type distribution
     """
-    def pdf_uniform(self):
+    # TODO: Can we generate values using this pdf and cdf? We don't want end points for values
+    def type_uniform(self):
+        cdf = 0
         for i in range(self.num_type):
-            self.pdf.append(1 / self.num_type)
+            pdf = 1 / self.num_type
+            # cdf += pdf  # include right end point
+            cdf = (i+1) / (self.num_type + 1)  # exclude both end points
+            self.pdfList.append(pdf)
+            self.cdfList.append(cdf)
 
     """
-    pdf: generate a geometric type distribution
+    Generate a type distribution according to a mixture of two Kumaraswamy distributions,
+    by taking n points from (0,1) evenly (excluding endpoints), calculating the PMF, then normalizing.
+    The PMF is q * abx^(a-1) * (1-x^a)^(b-1) + (1-q) * cdx^(c-1) * (1-x^c)^(d-1)
     """
-    def pdf_geometric(self, p):
-        pmf = []
+    def type_kumaraswamy(self, a, b, c, d, q, precision=4):
         total = 0
+        cdf = 0
+        temp = []
         for i in range(self.num_type):
-            temp = geom.pmf(i+1, p)
-            total += temp
-            pmf.append(temp)
-        # for i in range(self.num_type):
-        #     pmf[i] /= total
-        self.pdf = pmf
-        print(sum(pmf))
+            x = (i+1) / (self.num_type + 1)
+            pmf = q * a*b*x**(a-1) * (1-x**a)**(b-1) + (1 - q) * c*d*x**(c-1) * (1-x**c)**(d-1)
+            temp.append(pmf)
+            total += pmf
+        for i in range(self.num_type):
+            pmf = round(temp[i] / total, precision)
+            cdf += pmf
+            self.pdfList.append(pmf)
+            self.cdfList.append(cdf)
+
+
+
+
 
     """
     Calculate list of vs/vm, vt/vm, and vs/vt
@@ -134,21 +147,29 @@ class Population:
             self.stList.append(self.vsList[i] / self.vtList[i])
 
     """
-    Calculate vs values for regularity, i.e. v_i - (1-F(v_i)) / f(v_i) * (v_{i+1} - v_i)
+    Calculate virtual value for vs, i.e. v_i - (1-F(v_i)) / f(v_i) * (v_{i+1} - v_i)
     """
-    def calculate_regularity_s(self):
-        cdf = 0
+    def calculate_virtual_s(self):
         for i in range(self.num_type - 1):
-            cdf += self.pdf[i]
-            self.regularity.append(self.vsList[i] - (1 - cdf) / self.pdf[i] * (self.vsList[i+1] - self.vsList[i]))
-        self.regularity.append(self.vsList[-1])  # last type
+            self.vir_vsList.append(self.vsList[i] - (1 - self.cdfList[i]) / self.pdfList[i]
+                                   * (self.vsList[i+1] - self.vsList[i]))
+        self.vir_vsList.append(self.vsList[-1])  # last type
+
+    """
+    Calculate virtual value for vs/vm
+    """
+    def calculate_virtual_sm(self):
+        for i in range(self.num_type - 1):
+            self.vir_smList.append(self.smList[i] - (1 - self.cdfList[i]) / self.pdfList[i]
+                                   * (self.smList[i + 1] - self.smList[i]))
+        self.vir_smList.append(self.smList[-1])  # last type
 
     """
     Check if the distribution of vs satisfies monotone regularity constraint
     """
-    def mono_regularity_s(self):
+    def regular_s(self):
         for i in range(self.num_type - 1):
-            if self.regularity[i] > self.regularity[i+1]:
+            if self.vir_vsList[i] > self.vir_vsList[i+1]:
                 return False
         return True
 
@@ -159,11 +180,11 @@ class Population:
         self.vsList.clear()
         self.vmList.clear()
         self.vtList.clear()
-        self.pdf.clear()
+        self.pdfList.clear()
+        self.cdfList.clear()
         self.smList.clear()
         self.tmList.clear()
         self.stList.clear()
-        self.regularity.clear()
-        self.vs_perturbation.clear()
-        self.vm_perturbation.clear()
-        self.vt_perturbation.clear()
+        self.vir_vsList.clear()
+        self.vir_smList.clear()
+

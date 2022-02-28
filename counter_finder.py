@@ -56,9 +56,9 @@ while count <= num_loop:
         pop.vmList = pop.dist_uniform(2, 3)
         pop.vtList = pop.dist_uniform(4, 2)
         pop.perturbation(-1e-3, 1e-3, precision=v_precision)
-        pop.pdf_uniform()
+        pop.type_uniform()
         pop.calculate_ratio()
-        pop.calculate_regularity_s()
+        pop.calculate_virtual_s()
 
         '''
         Build model
@@ -90,7 +90,7 @@ while count <= num_loop:
         # if not mono_s_over_m():
         if not dual_zero_IC(1, 4) or not dual_zero_IC(2, 5):
             counter_ex += 1
-            # print_solution(m, pop, q, v_precision)
+            print_solution(m, pop, q, v_precision)
             print_dual_solution(d, pop, q, v_precision)
             exit(1)
 
