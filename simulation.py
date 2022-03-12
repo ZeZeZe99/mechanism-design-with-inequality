@@ -26,19 +26,19 @@ try:
     pop = Population(n)
 
     '''vm'''
-    pop.vmList = pop.value_uniform(1, 1)
+    pop.vmList = pop.value_uniform(1, 2)
 
     '''vs'''
-    pop.vsList = pop.value_uniform(0, 1)
+    pop.vsList = pop.value_uniform(2, 9)
     # pop.vsList = pop.value_kumaraswamy(1.75, 10, 8, 5, 0.75)  # a, b, c, d, q
     # pop.vsList = pop.value_exponential(scale=1/1)  # scale = 1 / lambda
     # for i in range(pop.num_type):
     #     pop.vsList.append(math.log(pop.vmList[i]))
 
     '''vt'''
-    # pop.vtList = pop.value_uniform(1, 0)
-    for i in range(pop.num_type):
-        pop.vtList.append(pop.vsList[i]**2)
+    pop.vtList = pop.value_uniform(2, 1)
+    # for i in range(pop.num_type):
+    #     pop.vtList.append(pop.vsList[i]**2)
 
     '''add perturbation to values'''
     # pop.perturbation(-1e-3, 1e-3, precision=v_precision, vs=True, vm=False, vt=False)
@@ -52,11 +52,14 @@ try:
     #     pop.vs_perturbation.append(off)
 
     '''pdf for each type'''
-    # pop.type_uniform()
-    pop.type_kumaraswamy(1.75, 10, 8, 5, 0.75)
+    pop.type_uniform()
+    # pop.type_kumaraswamy(1.75, 10, 8, 5, 0.75)
+    # pop.pdfList=[.7, .3]
+    # pop.cdfList=[.7, 1]
 
     pop.calculate_ratio()
     pop.calculate_virtual_s()
+    pop.calculate_virtual_sm()
 
     '''
     Draw value graphs
