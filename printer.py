@@ -15,7 +15,7 @@ def print_solution(model, pop, q, precision, myerson=False):
         t = PrettyTable(["index", "prob", "vs", "x", "p", "vs_vir"])
     else:
         t = PrettyTable(["index", "prob", "vs", "vm", "vt", "x", "p", "w", "vs/vm", "vs/vt", "vt/vm",
-                        "vs_vir"])
+                        "vir_vs", "vir_vs/vm"])
 
     # Solutions
     if myerson:
@@ -39,7 +39,8 @@ def print_solution(model, pop, q, precision, myerson=False):
                        round(pop.smList[i], precision),
                        round(pop.stList[i], precision),
                        round(pop.tmList[i], precision),
-                       round(pop.vir_vsList[i], precision)])
+                       round(pop.vir_vsList[i], precision),
+                       round(pop.vir_smList[i], precision)])
     print(t)
 
     # Constraints
