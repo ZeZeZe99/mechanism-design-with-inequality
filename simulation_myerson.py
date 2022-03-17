@@ -13,6 +13,7 @@ from printer import print_solution, print_dual_solution
 # parameters
 n = 10   # number of types
 q = 1  # ex ante constraint
+LAMBDA = 0
 v_precision = 4
 
 try:
@@ -23,14 +24,17 @@ try:
     pop.vsList = pop.value_uniform(0, 1)
     # pop.draw_s_uniform(0, 1, 2)
 
-    pop.type_uniform()
+    # pop.type_uniform()
+    pop.type_kumaraswamy(1.75, 10, 8, 5, 0.75)
 
     pop.calculate_virtual_s()
+
 
     '''
     Build LP model (primal and dual)
     '''
-    model = Myerson(pop, q, rev_max=True)
+    model = Myerson(pop, q, LAMBDA, rev_max=False)
+
     primal = model.primal
     dual = model.dual
 
@@ -80,7 +84,7 @@ try:
     Print result
     '''
     # solution
-    print_dual_solution(dual, pop, q, v_precision, myerson=True)
+    # print_dual_solution(dual, pop, q, v_precision, myerson=True)
 
 except gp.GurobiError as e:
     print('GurobiError: ' + e.message)

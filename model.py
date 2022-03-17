@@ -50,4 +50,8 @@ class Model:
         # self.m.addConstr(gp.quicksum(p[i] for i in range(pop.num_type)) == 0, "no payment")
         # self.m.addConstr(gp.quicksum(w[i] for i in range(pop.num_type)) == 0, "no wait time")
         # self.m.addConstrs((x[i] == 1 for i in range(pop.num_type)), "full allocation")
-        # self.m.addConstr(w[25] == 0, "test")
+        # self.m.addConstr(x[7] == 1, "test")
+        # self.m.addConstr(p[7] == 2.8333, "test")
+        # self.m.addConstr(w[7] == 0.1, "test")
+
+
