@@ -28,8 +28,11 @@ class Population:
     stList = []
     # virtual values
     vir_vsList = []
-    # virtual ratio of values
     vir_smList = []
+    vir_stList = []
+    # hazard rate
+    h_rate = []
+    rec_hr_st = []
 
     def __init__(self, num_type):
         self.num_type = num_type
@@ -133,6 +136,14 @@ class Population:
             self.pdfList.append(pmf)
             self.cdfList.append(cdf)
 
+    def type_equal_revenue(self, precision=4):
+        total = 0
+        cdf = 0
+        temp = []
+        for i in range(self.num_type):
+            x = (i + 1) / (self.num_type + 1)
+            pmf = 1/x
+
     """
     Calculate list of vs/vm, vt/vm, and vs/vt
     """
@@ -159,6 +170,32 @@ class Population:
             self.vir_smList.append(self.smList[i] - (1 - self.cdfList[i]) / self.pdfList[i]
                                    * (self.smList[i + 1] - self.smList[i]))
         self.vir_smList.append(self.smList[-1])  # last type
+
+    """
+    Calculate virtual value for vs/vt
+    """
+    def calculate_virtual_st(self):
+        for i in range(self.num_type - 1):
+            self.vir_stList.append(self.stList[i] - (1 - self.cdfList[i]) / self.pdfList[i]
+                                   * (self.stList[i + 1] - self.stList[i]))
+        self.vir_stList.append(self.stList[-1])  # last type
+
+    """
+    Calculate the hazard rate: f(v) / (1 - F(v))
+    """
+    def calculate_hazard_rate(self):
+        for i in range(self.num_type - 1):
+            self.h_rate.append(self.pdfList[i] / (1-self.cdfList[i]))
+        self.h_rate.append(self.pdfList[-1])
+
+    """
+    Calculate the reciprocal of the hazard rate: (1-F(v_i)) / f(v_i) * (v_{i+1} - v_i)
+    """
+    def calculate_rec_hr_st(self):
+        for i in range(self.num_type - 1):
+            self.rec_hr_st.append((1 - self.cdfList[i]) / self.pdfList[i]
+                                  * (self.stList[i+1] - self.stList[i]))
+        self.rec_hr_st.append(0)
 
     """
     Check if the distribution of vs satisfies monotone regularity constraint
